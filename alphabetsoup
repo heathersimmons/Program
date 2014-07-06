@@ -1,0 +1,165 @@
+
+<html>
+<head>
+    <title>Alphabet Soup</title>
+
+	<style type="text/css">
+		body{
+			background-image:url('file:///Users/heatherocad/Documents/OCAD/Program!/brushed-metal.jpg');
+            //background-color:black;
+
+		}
+		span{
+			position:absolute;
+			//background-color:white;
+            font-family:"Hobo Std";
+            color:white;
+            font-size:60px;
+			//border-style:solid;
+			//border-width:1px 2px 2px 1px;
+			//padding:5px;
+		}
+
+
+	</style>
+
+    <script type="text/javascript">
+	var mx;
+	var my;
+	var currentY;
+	var currentX;
+	var dy;
+	var dx;
+	var currLetter;
+    var maxZ = 0;
+    var kidPrompt;
+    var buttonString;
+
+
+
+
+
+	var letters = new Array();
+
+
+	/*This for loop fills the Letter Array, called letters, with the IDs of all the span tags on the page.*/
+	function fillArray(){
+		var len = document.getElementsByTagName("span").length;
+		for(i=0;i<len;i++){
+			letters[i] = document.getElementsByTagName("span")[i].id;
+		}
+	}
+	/*
+	This for-loop sets the top and left styles of each of the elements to a random number,between 0 and 1,
+    multiplied by the height/width of the browser size (with a slight adjustment of 50px to keep elements
+    on the page).  It then randomly sets the colour of each letter.
+	*/
+	function randomizeLetters(){
+		for(i=0;i<letters.length;i++){
+			this.document.getElementById(letters[i]).style.top = Math.floor(Math.random()*(window.innerHeight-50));
+			this.document.getElementById(letters[i]).style.left = Math.floor(Math.random()*(window.innerWidth-50));
+            this.document.getElementById(letters[i]).style.color = '#'+Math.floor(Math.random()*16777215).toString(16);
+		}
+	}
+	/*
+	Assigns the id of the element being clicked on to the variable 'currLetter.' Stores the current x and y coordinates of the selected
+	element. Evaluates the x and y distance from the cursor to the top-left corner of currLetter.
+	*/
+	function holdMe(id){
+		currLetter = id;
+		currentY = document.getElementById(id).style.top;
+		currentX = document.getElementById(id).style.left;
+
+		tmp = parseInt(currentY);
+		dy = my-tmp;
+		tmp1 = parseInt(currentX);
+		dx = mx-tmp1;
+	}
+	/*
+
+	The position of the mouse is stored into the two variables mx and my. The top and left styles of the selected id (assigned to
+	the currLetter variable in the holdMe() function) are set to the position of the mouse minues the distance to the elements starting
+	top and left styles. The effect of the subtraction is that you can click anywhere on the element and the top-left corner will
+	move relative to the position of the mouse when you clicked on it, rather than to the cursors exact position.
+	*/
+	function trackMouse(event){
+		mx = event.clientX;
+		my = event.clientY;
+		document.getElementById(currLetter).style.top = my-dy;
+		document.getElementById(currLetter).style.left = mx-dx;
+	}
+	/*
+	Assigns the variable storing the current element's id
+	to null, which affectively deselects the current element.
+	*/
+	function releaseMe(){
+
+		currLetter = "";
+	}
+
+    /*
+	Randomizes letters so child can play again.
+	*/
+
+    function playMore(){
+
+    fillArray();
+    randomizeLetters();
+
+    }
+
+
+    </script>
+
+
+</head>
+<!--Event handlers used to call functions in the head.-->
+<body onLoad= fillArray();randomizeLetters() checkOrder(); onMouseMove="trackMouse(event)" onMouseUp="releaseMe()"; >
+
+    <script>
+
+    var kidPrompt=prompt("Hi!  What's your name?", "");
+    alert("Hello " + kidPrompt + ", please help me put the alphabet in order.");
+
+
+
+     </script>
+
+
+    <span id="A" onMouseDown="holdMe(id)">A</span>
+    <span id="B" onMouseDown="holdMe(id)">B</span>
+    <span id="C" onMouseDown="holdMe(id)">C</span>
+    <span id="D" onMouseDown="holdMe(id)">D</span>
+    <span id="E" onMouseDown="holdMe(id)">E</span>
+    <span id="F" onMouseDown="holdMe(id)">F</span>
+    <span id="G" onMouseDown="holdMe(id)">G</span>
+    <span id="H" onMouseDown="holdMe(id)">H</span>
+    <span id="I" onMouseDown="holdMe(id)">I</span>
+
+    <span id="J" onMouseDown="holdMe(id)">J</span>
+    <span id="K" onMouseDown="holdMe(id)">K</span>
+    <span id="L" onMouseDown="holdMe(id)">L</span>
+    <span id="M" onMouseDown="holdMe(id)">M</span>
+    <span id="N" onMouseDown="holdMe(id)">N</span>
+    <span id="O" onMouseDown="holdMe(id)">O</span>
+    <span id="P" onMouseDown="holdMe(id)">P</span>
+    <span id="Q" onMouseDown="holdMe(id)">Q</span>
+    <span id="R" onMouseDown="holdMe(id)">R</span>
+    <span id="S" onMouseDown="holdMe(id)">S</span>
+    <span id="T" onMouseDown="holdMe(id)">T</span>
+    <span id="U" onMouseDown="holdMe(id)">U</span>
+    <span id="V" onMouseDown="holdMe(id)">V</span>
+    <span id="W" onMouseDown="holdMe(id)">W</span>
+    <span id="X" onMouseDown="holdMe(id)">X</span>
+    <span id="Y" onMouseDown="holdMe(id)">Y</span>
+    <span id="Z" onMouseDown="holdMe(id)">Z</span>
+
+
+
+<input type="button" id = "button" value="Play Again?" onClick="playMore()"> <br>
+
+
+
+
+</body>
+</html>
