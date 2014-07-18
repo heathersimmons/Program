@@ -1,22 +1,64 @@
-//The brushed-metal jpg can be accessed in the Issues folder at https://github.com/heathersimmons/Program/issues/1
+
+<!--The code by Matt Doyle at http://www.elated.com/articles/drag-and-drop-with-jquery-your-essential-guide/ was helpful in designing the drag/drop functionality.
+The brushed-metal jpg and the "fridge magnet" idea is from Ryerson professor Phil Witton's Cyberfridge code.  The brushed-metal jpg can be accessed in the Issues
+folder at https://github.com/heathersimmons/Program/issues/1
+-->
+
 <html>
 <head>
     <title>Alphabet Soup</title>
 
 	<style type="text/css">
-		body{
-		    background-image:url('file:///Users/heatherocad/Documents/OCAD/Program!/brushed-metal.jpg');
-            
+	    body{
+		background-image:url('file:///Users/heatherocad/Documents/OCAD/Program!/brushed-metal.jpg');
+
 		}
-		span{
-		    position:absolute;
-            	    font-family:"Hobo Std";
-            	    font-size:60px;
 		
+	    span{
+		position:absolute;
+            	font-family:"Hobo Std";
+            	font-size:52px;
+
 		}
 
+            #letterSlots div{
+                float: left;
+                width: 30px;
+                height: 30px;
+                position:relative;
+                top:560px;
+                padding: 5px;
+                padding-top: 40px;
+                padding-bottom: 5px;
+                border: 2px solid #333;
+                -moz-border-radius: 10px;
+                -webkit-border-radius: 10px;
+                border-radius: 10px;
+                margin: 0 0 0 8px;
+                background: #fff;
+                border-style: dashed;
+                
+        }
+
+            #letterSlots div:first-child {
+                margin-left: 0;
+        }
+
+             #playbutton {
+
+                width:90px;
+                height:30px;
+                position:absolute;
+                top:30px;
+                left:20px;
+                font-family:"Hobo Std";
+                font-size:40px;
+                color:blue;
+
+        }
+
 	</style>
-    
+
 
     <script src = "http://code.jquery.com/jquery-latest.js"></script>
 
@@ -24,88 +66,110 @@
 
     <script type="text/javascript">
 
-    var currLetter;
-    var kidPrompt;
-    var buttonString;
-    var letters = new Array();
-    var currentX;
 
-   /*This jQuery function allows each letter, which is contained in a span tag, to be dragged
-   to a new location.  I have commented out the "stop" event option, which points to a function,
-   endPosition, which alerts the ending X position of the letter.  I suspect I could use jQuery
-   and this endPosition function to make checking the correct order of the letters simpler.  This check
-   is currently done via the Javascript checkOrder function below.  I am stumped at the moment
-   as to how to make the jQuery stop:endPosition event option perform the same work, faster.
+    var kidPrompt;
+    var letters = new Array();
+    var correctLetters = 0;
+
+   /*Diagnostic function, helps with my CSS positioning challenges.
    */
-        
+    function alertSize() {
+      var myWidth = 0, myHeight = 0;
+
+        if( typeof( window.innerWidth ) == 'number' ) {
+        //Non-IE
+        myWidth = window.innerWidth;
+        myHeight = window.innerHeight;
+      } else if( document.documentElement && ( document.documentElement.clientWidth || document.documentElement.clientHeight ) ) {
+        //IE 6+ in 'standards compliant mode'
+        myWidth = document.documentElement.clientWidth;
+        myHeight = document.documentElement.clientHeight;
+      } else if( document.body && ( document.body.clientWidth || document.body.clientHeight ) ) {
+        //IE 4 compatible
+        myWidth = document.body.clientWidth;
+        myHeight = document.body.clientHeight;
+      }
+        window.alert( 'Width = ' + myWidth );
+        window.alert( 'Height = ' + myHeight );
+
+    }
+
+   /*Attempt to resize window to fit 26 letter slots.  Does not work in all browsers.
+   */
+        function resizeWin() {
+        window.resizeTo(1348, 658);
+
+        }
+
+    /*Makes the div slots to hold the letters of the alphabet.  Appends a number to each div for identification purposes.  Adds each div
+    in the letterSlots div.  Adds droppable functionality - will accept any element of class myAlphabet.  On drop, if index of dragged letter matches
+    number attached to each div slot, div slot background colour is changed to light green, variable which holds number of correct letters
+    is incremented, and checkOrder function is run to see if the number of correct letters is greater than 25 (in which case "hooray" is alerted).
+    If index of dragged letter does not match number attached to div slot, div slot background colour stays white, and "try again" message is alerted.
+   */
+
+    function makeSlots() {
+      var slotNumbers = [ "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen", "twenty", "twenty-one", "twenty-two", "twenty-three", "twenty-four", "twenty-five", "twenty-six"];
+      for ( var i=1; i<=slotNumbers.length; i++ ) {
+        $('<div>' + '</div>').data( 'number', i ).appendTo( '#letterSlots' ).droppable( {
+
+                accept: ".myAlphabet",
+                drop: function (event, ui) {
+                     var slotNumber = $(this).data( 'number' );
+                     var myLetter = ui.draggable.index()-1;
+
+                        if(slotNumber ==myLetter){
+                        $(this).css("background-color", "lightgreen");
+                        correctLetters++;
+                        checkOrder();
+                    }
+
+                        else{
+                        $(this).css("background-color", "#fff");
+                        alert("Oops!  Try again.");
+                    }
+                },
+            });
+          }
+
+        }
+
+    /*This for loop fills the Letter Array, called letters, with the IDs of all the span tags on the page.
+    */
+	function fillArray(){
+		var len = document.getElementsByTagName("span").length;
+		for(i=0;i<len;i++){
+			letters[i] = document.getElementsByTagName("span")[i].id;
+		}
+	}
+
+   /*This for-loop sets the top and left styles of each of the letters to a random number,between 0 and 1,
+   multiplied by the height/width of the browser size (with a slight adjustment of 50px to keep elements
+   on the page).  It then randomly sets the colour of each letter.
+	*/
+	function randomizeLetters(){
+		for(i=0;i<letters.length;i++){
+			this.document.getElementById(letters[i]).style.top = Math.floor(Math.random()*(window.innerHeight-140));
+			this.document.getElementById(letters[i]).style.left = Math.floor(Math.random()*(window.innerWidth-50));
+            		this.document.getElementById(letters[i]).style.color = '#'+Math.floor(Math.random()*16777215).toString(16);
+		}
+	}
+
+  /*Allows each letter to be dragged to one of the cardSlots.
+   */
    $(function() {
         $( "span" ).draggable({
         cursor:"move",
-        //stop:endPosition
+        snap:"#letterSlots div",
+        });
 
-            });
-      });
+     });
 
-    function endPosition (event, ui){
-        var offsetXPos = parseInt( ui.offset.left );
-        alert( "Drag stopped!\n\nOffset: (" + offsetXPos + ")\n");
-
-       }
-
-
-	/*This for loop fills the Letter Array, called letters, with the IDs of all the span tags on the page.
-    */
-    function fillArray(){
-        var len = document.getElementsByTagName("span").length;
-	for(i=0;i<len;i++){
-	letters[i] = document.getElementsByTagName("span")[i].id;
-
-	    }
-	}
-	/*
-	This for-loop sets the top and left styles of each of the elements to a random number,between 0 and 1,
-    multiplied by the height/width of the browser size (with a slight adjustment of 50px to keep elements
-    on the page).  It then randomly sets the colour of each letter.
-	*/
-	function randomizeLetters(){
-	    for(i=0;i<letters.length;i++){
-	        this.document.getElementById(letters[i]).style.top = Math.floor(Math.random()*(window.innerHeight-50));
-		this.document.getElementById(letters[i]).style.left = Math.floor(Math.random()*(window.innerWidth-50));
-                this.document.getElementById(letters[i]).style.color = '#'+Math.floor(Math.random()*16777215).toString(16);
-            }
-	}
-
-    /* This function checks that the child has dragged the letters of the alphabet into the correct postions - 
+    /* This function checks that the child has dragged the letters of the alphabet into the correct postions -
     namely, A to the left of B, etc.
     */
-    
     function checkOrder(){
-    if (this.document.getElementById("A").offsetLeft<this.document.getElementById("B").offsetLeft &&
-        this.document.getElementById("B").offsetLeft<this.document.getElementById("C").offsetLeft &&
-        this.document.getElementById("C").offsetLeft<this.document.getElementById("D").offsetLeft &&
-        this.document.getElementById("D").offsetLeft<this.document.getElementById("E").offsetLeft &&
-        this.document.getElementById("E").offsetLeft<this.document.getElementById("F").offsetLeft &&
-        this.document.getElementById("F").offsetLeft<this.document.getElementById("G").offsetLeft &&
-        this.document.getElementById("G").offsetLeft<this.document.getElementById("H").offsetLeft &&
-        this.document.getElementById("H").offsetLeft<this.document.getElementById("I").offsetLeft &&
-        this.document.getElementById("I").offsetLeft<this.document.getElementById("J").offsetLeft &&
-        this.document.getElementById("J").offsetLeft<this.document.getElementById("K").offsetLeft &&
-        this.document.getElementById("K").offsetLeft<this.document.getElementById("L").offsetLeft &&
-        this.document.getElementById("L").offsetLeft<this.document.getElementById("M").offsetLeft &&
-        this.document.getElementById("M").offsetLeft<this.document.getElementById("N").offsetLeft &&
-        this.document.getElementById("N").offsetLeft<this.document.getElementById("O").offsetLeft &&
-        this.document.getElementById("O").offsetLeft<this.document.getElementById("P").offsetLeft &&
-        this.document.getElementById("P").offsetLeft<this.document.getElementById("Q").offsetLeft &&
-        this.document.getElementById("Q").offsetLeft<this.document.getElementById("R").offsetLeft &&
-        this.document.getElementById("R").offsetLeft<this.document.getElementById("S").offsetLeft &&
-        this.document.getElementById("S").offsetLeft<this.document.getElementById("T").offsetLeft &&
-        this.document.getElementById("T").offsetLeft<this.document.getElementById("U").offsetLeft &&
-        this.document.getElementById("U").offsetLeft<this.document.getElementById("V").offsetLeft &&
-        this.document.getElementById("V").offsetLeft<this.document.getElementById("W").offsetLeft &&
-        this.document.getElementById("W").offsetLeft<this.document.getElementById("X").offsetLeft &&
-        this.document.getElementById("X").offsetLeft<this.document.getElementById("Y").offsetLeft &&
-        this.document.getElementById("Y").offsetLeft<this.document.getElementById("Z").offsetLeft)
-
+        if (correctLetters>25)
             {
             alert ("Hooray! You did it.")
             }
@@ -113,65 +177,70 @@
         else
 
             {
-            alert ("Keep Trying!")
+
             }
-    }
+        }
 
     /*
-	Randomizes letters so child can play again.
+	Randomizes letters again and resets slot background colour and correctLetters variable so child can play again.
 	*/
 
     function playMore(){
         fillArray();
         randomizeLetters();
+         $("#letterSlots div").css("background-color", "#fff");
+        correctLetters=0;
 
-    }
+        }
+
 
     </script>
 
 </head>
 
-    <body onLoad= fillArray();randomizeLetters();>
+<body onLoad= fillArray();randomizeLetters();makeSlots();resizeWin();>
+
+<div id="letterSlots"> </div>
 
     <script>
 
     var kidPrompt=prompt("Hi!  What's your name?", "");
-    alert("Hello " + kidPrompt + ", please help me put the alphabet in order.");
+    alert("Hello, " + kidPrompt +", please help me put the alphabet in order by dragging the letters into the boxes.");
 
      </script>
 
-
-    <span id="A">A</span>
-    <span id="B">B</span>
-    <span id="C">C</span>
-    <span id="D">D</span>
-    <span id="E">E</span>
-    <span id="F">F</span>
-    <span id="G">G</span>
-    <span id="H">H</span>
-    <span id="I">I</span>
-    <span id="J">J</span>
-    <span id="K">K</span>
-    <span id="L">L</span>
-    <span id="M">M</span>
-    <span id="N">N</span>
-    <span id="O">O</span>
-    <span id="P">P</span>
-    <span id="Q">Q</span>
-    <span id="R">R</span>
-    <span id="S">S</span>
-    <span id="T">T</span>
-    <span id="U">U</span>
-    <span id="V">V</span>
-    <span id="W">W</span>
-    <span id="X">X</span>
-    <span id="Y">Y</span>
-    <span id="Z">Z</span>
+    <span id="A" class="myAlphabet">A</span>
+    <span id="B" class="myAlphabet">B</span>
+    <span id="C" class ="myAlphabet">C</span>
+    <span id="D" class="myAlphabet">D</span>
+    <span id="E" class ="myAlphabet">E</span>
+    <span id="F" class ="myAlphabet">F</span>
+    <span id="G" class ="myAlphabet">G</span>
+    <span id="H" class ="myAlphabet">H</span>
+    <span id="I" class ="myAlphabet">I</span>
+    <span id="J" class ="myAlphabet">J</span>
+    <span id="K" class ="myAlphabet">K</span>
+    <span id="L" class ="myAlphabet">L</span>
+    <span id="M" class ="myAlphabet">M</span>
+    <span id="N" class ="myAlphabet">N</span>
+    <span id="O" class ="myAlphabet">O</span>
+    <span id="P" class ="myAlphabet">P</span>
+    <span id="Q" class ="myAlphabet">Q</span>
+    <span id="R" class ="myAlphabet">R</span>
+    <span id="S" class ="myAlphabet">S</span>
+    <span id="T" class ="myAlphabet">T</span>
+    <span id="U" class ="myAlphabet">U</span>
+    <span id="V" class ="myAlphabet">V</span>
+    <span id="W" class ="myAlphabet">W</span>
+    <span id="X" class ="myAlphabet">X</span>
+    <span id="Y" class ="myAlphabet">Y</span>
+    <span id="Z" class ="myAlphabet">Z</span>
 
 
 <input type="button" id = "playbutton" value="Play Again?" onClick="playMore()"> <br>
 
-<input type="button" id = "checkbutton" value="Check Answer?" onClick="checkOrder()"> <br>
 
 </body>
 </html>
+
+
